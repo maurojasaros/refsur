@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>RefSur - Catálogo</title>
+</head>
+<body>
+
+<h1>Catálogo de Productos</h1>
+
+
+{% if user.is_authenticated %}
+    <p>
+        Bienvenido, {{ user.username }} |
+        <a href="{% url 'logout' %}">Cerrar sesión</a>
+    </p>
+{% else %}
+    <a href="{% url 'login' %}">Login</a>
+{% endif %}
+
+<a href="{% url 'view_cart' %}">Ver carrito 🛒</a>
+
+<a href="{% url 'my_orders' %}">Mis pedidos 📦</a>
+
+{% for producto in productos %}
+    <div style="border:1px solid #ccc; margin:10px; padding:10px;">
+
+        <h2>
+            <a href="{% url 'product_detail' producto.id %}">
+                {{ producto.nombre }}
+            </a>
+        </h2>
+
+        <p>{{ producto.descripcion }}</p>
+        <p><strong>Precio:</strong> ${{ producto.precio }}</p>
+        <p><strong>Tipo:</strong> {{ producto.tipo }}</p>
+
+        {% if producto.tipo == "casa" %}
+            <p>M2: {{ producto.m2 }}</p>
+            <p>Ubicación: {{ producto.ubicacion }}</p>
+        {% elif producto.tipo == "mueble" %}
+            <p>Stock: {{ producto.stock }}</p>
+            <p>Material: {{ producto.material }}</p>
+        {% endif %}
+
+
+       
+        <form method="POST" action="{% url 'add_to_cart' producto.id %}">
+            {% csrf_token %}
+            <button type="submit">Agregar al carrito 🛒</button>
+        </form>
+
+    </div>
+{% empty %}
+    <p>No hay productos disponibles</p>
+{% endfor %}
+
+</body>
+</html>

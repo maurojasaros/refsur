@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detalle pedido</title>
+</head>
+<body>
+
+<h1>Pedido #{{ order.id }}</h1>
+
+<a href="{% url 'my_orders' %}">← Volver</a>
+
+<hr>
+
+{% for item in items %}
+    <div>
+        <p>{{ item.producto.nombre }}</p>
+        <p>Cantidad: {{ item.cantidad }}</p>
+        <p>Precio: ${{ item.precio_unitario }}</p>
+    </div>
+{% endfor %}
+
+<hr>
+
+<h2>Total: ${{ order.total }}</h2>
+
+</body>
+</html>
