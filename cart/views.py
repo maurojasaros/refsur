@@ -2,31 +2,58 @@ from .models import Cart, CartItem
 from products.models import Product
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.db.models import F
+from django.contrib import messages
 
 @login_required
 def add_to_cart(request, pk):
+    
+    print("ADD TO CART REAL EJECUTÁNDOSE")
+
     producto = get_object_or_404(Product, pk=pk)
 
-    # usar "usuario" porque así está en el modelo
-    #cart, created = Cart.objects.get_or_create(usuario=request.user)
+    
+    if producto.stock is not None and producto.stock <= 0:
+        messages.error(request, "Sin stock")
+        return redirect('product_list')
 
     cart, created = Cart.objects.get_or_create(
         usuario=request.user,
         estado='activo'
-)
-
-    cart_item, created = CartItem.objects.get_or_create(
-        carrito=cart,
-        producto=producto,
-        defaults={'cantidad': 1}
     )
 
-    if not created:
-        cart_item.cantidad += 1
-        cart_item.save()
+    cart_item = CartItem.objects.filter(
+        carrito=cart,
+        producto=producto
+    ).first()
 
-    return redirect('product_list')
+   
+    if cart_item:
+        if producto.stock is not None:
+            updated = CartItem.objects.filter(
+                pk=cart_item.pk,
+                cantidad__lt=producto.stock  
+            ).update(cantidad=F('cantidad') + 1)
 
+            if updated == 0:
+                return redirect('view_cart')  
+
+        else:
+            cart_item.cantidad += 1
+            cart_item.save()
+
+    
+    else:
+        if producto.stock is not None and producto.stock < 1:
+            return redirect('product_list')
+
+        CartItem.objects.create(
+            carrito=cart,
+            producto=producto,
+            cantidad=1
+        )
+
+    return redirect('view_cart')
 
 @login_required
 def view_cart(request):
@@ -34,6 +61,24 @@ def view_cart(request):
 
     if cart:
         items = CartItem.objects.filter(carrito=cart)
+
+        
+        for item in items:
+            producto = item.producto
+
+            if producto.stock is not None:
+                
+                if producto.stock <= 0:
+                    item.delete()
+
+                
+                elif item.cantidad > producto.stock:
+                    item.cantidad = producto.stock
+                    item.save()
+
+        #  recargar items actualizados
+        items = CartItem.objects.filter(carrito=cart)
+
     else:
         items = []
 

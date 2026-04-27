@@ -1,42 +1,49 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mi carrito</title>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
 
 <h1>Mi carrito 🛒</h1>
 
-<a href="{% url 'product_list' %}">Volver al catálogo</a>
+{% if items %}
 
-<hr>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+            <th>Subtotal</th>
+            <th></th>
+        </tr>
+    </thead>
 
-{% for item in items %}
-    <div style="border:1px solid #ccc; margin:10px; padding:10px;">
-        <h3>{{ item.producto.nombre }}</h3>
-        <p>Cantidad: {{ item.cantidad }}</p>
-        <p>Precio: ${{ item.producto.precio }}</p>
-        <p>Subtotal: ${{ item.subtotal }}</p>
-    </div>
+    <tbody>
+    {% for item in items %}
+        <tr>
+            <td>{{ item.producto.nombre }}</td>
+            <td>{{ item.cantidad }}</td>
+            <td>${{ item.producto.precio }}</td>
+            <td>${{ item.subtotal }}</td>
+            <td>
+                <form method="POST" action="{% url 'remove_from_cart' item.id %}">
+                    {% csrf_token %}
+                    <button class="btn btn-danger btn-sm">❌</button>
+                </form>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
 
-    <form method="POST" action="{% url 'remove_from_cart' item.id %}">
-        {% csrf_token %}
-        <button type="submit">Eliminar ❌</button>
-    </form>
-{% empty %}
-    <p>Tu carrito está vacío</p>
-{% endfor %}
-
-
-<p>Cart: {{ cart }}</p>
-{% if cart %}
-    <h2>Total carrito: ${{ cart.total|default:"NO HAY TOTAL" }}</h2>
-{% endif %}
+<h3>Total: ${{ cart.total }}</h3>
 
 <form method="POST" action="{% url 'checkout' %}">
     {% csrf_token %}
-    <button type="submit">Finalizar compra 💳</button>
+    <button class="btn btn-success">Finalizar compra 💳</button>
 </form>
 
-</body>
-</html>
+{% else %}
+    <p>Tu carrito está vacío</p>
+{% endif %}
+
+{% endblock %}

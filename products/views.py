@@ -79,3 +79,14 @@ def user_logout(request):
     return redirect('login')
 
 
+from cart.models import CartItem
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def remove_from_cart(request, pk):
+    item = get_object_or_404(CartItem, pk=pk, carrito__usuario=request.user)
+    item.delete()
+    return redirect('view_cart')
+
+

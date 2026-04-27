@@ -1,24 +1,16 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h2>Iniciar sesión</h2>
+{% block content %}
 
-{% if error %}
-<p style="color:red;">{{ error }}</p>
-{% endif %}
+<h2>Login</h2>
 
 <form method="POST">
     {% csrf_token %}
-    <input type="text" name="username" placeholder="Usuario">
-    <input type="password" name="password" placeholder="Contraseña">
-    <button type="submit">Ingresar</button>
+    <input class="form-control mb-2" type="text" name="username" placeholder="Usuario">
+    <input class="form-control mb-2" type="password" name="password" placeholder="Contraseña">
+    <button class="btn btn-primary">Ingresar</button>
 </form>
 
-<a href="/register/">Crear cuenta</a>
+<a href="{% url 'register' %}">Crear cuenta</a>
 
-</body>
-</html>
+{% endblock %}

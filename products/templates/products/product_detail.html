@@ -1,31 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ producto.nombre }}</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<a href="/">⬅ Volver</a>
+{% block content %}
 
 <h1>{{ producto.nombre }}</h1>
 
 <p>{{ producto.descripcion }}</p>
-<p><strong>Precio:</strong> ${{ producto.precio }}</p>
-<p><strong>Tipo:</strong> {{ producto.tipo }}</p>
-
-{% if producto.tipo == "casa" %}
-    <p>M2: {{ producto.m2 }}</p>
-    <p>Ubicación: {{ producto.ubicacion }}</p>
-{% else %}
-    <p>Stock: {{ producto.stock }}</p>
-    <p>Material: {{ producto.material }}</p>
-{% endif %}
-
+<p><strong>$ {{ producto.precio }}</strong></p>
 
 <form method="POST" action="{% url 'add_to_cart' producto.id %}">
     {% csrf_token %}
-    <button type="submit">Agregar al carrito 🛒</button>
+    <button class="btn btn-primary">Agregar al carrito</button>
 </form>
 
-</body>
-</html>
+{% endblock %}

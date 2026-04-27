@@ -1,19 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Registro</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h2>Registrarse</h2>
+{% block content %}
+
+<h2>Registro</h2>
 
 <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Crear cuenta</button>
+    <button class="btn btn-success">Crear cuenta</button>
 </form>
 
-<a href="/login/">Ir a login</a>
-
-</body>
-</html>
+{% endblock %}
