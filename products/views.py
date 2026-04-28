@@ -4,6 +4,8 @@ from .forms import RegisterForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from cart.models import Cart, CartItem
+from .forms import UserUpdateForm
+from django.contrib import messages
 
 def product_list(request):
     productos = Product.objects.all()
@@ -13,8 +15,8 @@ def product_detail(request, pk):
     producto = get_object_or_404(Product, pk=pk)
     return render(request, 'products/product_detail.html', {'producto': producto})
 
-@login_required
-def add_to_cart(request, pk):
+#@login_required
+#def add_to_cart(request, pk):
     producto = get_object_or_404(Product, pk=pk)
 
     cart, created = Cart.objects.get_or_create(
@@ -88,5 +90,22 @@ def remove_from_cart(request, pk):
     item = get_object_or_404(CartItem, pk=pk, carrito__usuario=request.user)
     item.delete()
     return redirect('view_cart')
+
+
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        form = UserUpdateForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Perfil actualizado correctamente")
+            return redirect('profile')
+    else:
+        form = UserUpdateForm(instance=request.user)
+
+    return render(request, 'products/profile.html', {
+        'form': form
+    })
 
 

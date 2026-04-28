@@ -7,53 +7,61 @@ from django.contrib import messages
 
 @login_required
 def add_to_cart(request, pk):
-    
-    print("ADD TO CART REAL EJECUTÁNDOSE")
 
     producto = get_object_or_404(Product, pk=pk)
 
-    
+    # 🔢 Obtener cantidad desde el form (default = 1)
+    try:
+        cantidad = int(request.POST.get('cantidad', 1))
+    except ValueError:
+        cantidad = 1
+
+    if cantidad < 1:
+        cantidad = 1
+
+    # 🚫 Validar stock general
     if producto.stock is not None and producto.stock <= 0:
-        messages.error(request, "Sin stock")
+        messages.error(request, "Sin stock disponible")
         return redirect('product_list')
 
+    # 🛒 Obtener o crear carrito
     cart, created = Cart.objects.get_or_create(
         usuario=request.user,
         estado='activo'
     )
 
+    # 🔎 Buscar si ya existe en carrito
     cart_item = CartItem.objects.filter(
         carrito=cart,
         producto=producto
     ).first()
 
-   
+    # 📦 SI YA EXISTE
     if cart_item:
-        if producto.stock is not None:
-            updated = CartItem.objects.filter(
-                pk=cart_item.pk,
-                cantidad__lt=producto.stock  
-            ).update(cantidad=F('cantidad') + 1)
+        nueva_cantidad = cart_item.cantidad + cantidad
 
-            if updated == 0:
-                return redirect('view_cart')  
+        if producto.stock is not None and nueva_cantidad > producto.stock:
+            messages.error(request, "Stock insuficiente")
+            return redirect('product_list')
 
-        else:
-            cart_item.cantidad += 1
-            cart_item.save()
+        cart_item.cantidad = nueva_cantidad
+        cart_item.save()
 
-    
+    # 🆕 SI NO EXISTE
     else:
-        if producto.stock is not None and producto.stock < 1:
+        if producto.stock is not None and cantidad > producto.stock:
+            messages.error(request, "Stock insuficiente")
             return redirect('product_list')
 
         CartItem.objects.create(
             carrito=cart,
             producto=producto,
-            cantidad=1
+            cantidad=cantidad
         )
 
-    return redirect('view_cart')
+    messages.success(request, "Producto agregado al carrito")
+
+    return redirect('product_list')
 
 @login_required
 def view_cart(request):
@@ -86,6 +94,31 @@ def view_cart(request):
         'items': items,
         'cart': cart
     })
+
+from django.views.decorators.http import require_POST
+
+@require_POST
+@login_required
+def update_quantity(request, pk):
+    item = get_object_or_404(CartItem, pk=pk, carrito__usuario=request.user)
+
+    action = request.POST.get('action')
+
+    if action == 'increase':
+        if item.producto.stock is None or item.cantidad < item.producto.stock:
+            item.cantidad += 1
+            item.save()
+        else:
+            messages.error(request, "No hay más stock disponible")
+
+    elif action == 'decrease':
+        if item.cantidad > 1:
+            item.cantidad -= 1
+            item.save()
+        else:
+            item.delete()
+
+    return redirect('cart:view_cart')
 
 @login_required
 def remove_from_cart(request, pk):

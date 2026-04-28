@@ -24,8 +24,19 @@
                     <p>Stock: {{ producto.stock }}</p>
 
                     {% if producto.stock > 0 %}
-                        <form method="POST" action="{% url 'add_to_cart' producto.id %}">
+                        <!-- 🔥 CAMBIO AQUÍ -->
+                        <form method="POST" action="{% url 'cart:add_to_cart' producto.id %}">
                             {% csrf_token %}
+
+                            <input 
+                                type="number" 
+                                name="cantidad" 
+                                value="1" 
+                                min="1" 
+                                max="{{ producto.stock }}"
+                                class="form-control mb-2"
+                            >
+
                             <button class="btn btn-primary w-100">
                                 Agregar 🛒
                             </button>

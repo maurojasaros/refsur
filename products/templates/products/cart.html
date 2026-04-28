@@ -21,7 +21,21 @@
     {% for item in items %}
         <tr>
             <td>{{ item.producto.nombre }}</td>
-            <td>{{ item.cantidad }}</td>
+            <td>
+                <form method="POST" action="{% url 'cart:update_quantity' item.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="decrease">
+                    <button class="btn btn-sm btn-secondary">-</button>
+                </form>
+
+                <span class="mx-2">{{ item.cantidad }}</span>
+
+                <form method="POST" action="{% url 'cart:update_quantity' item.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="increase">
+                    <button class="btn btn-sm btn-secondary">+</button>
+                </form>
+            </td>
             <td>${{ item.producto.precio }}</td>
             <td>${{ item.subtotal }}</td>
             <td>

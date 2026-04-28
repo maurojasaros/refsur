@@ -1,0 +1,11 @@
+<h2>Compra realizada 🎉</h2>
+
+<p>Hola {{ user.first_name|default:user.username }},</p>
+
+<p>Tu pedido <strong>#{{ order.id }}</strong> fue realizado con éxito.</p>
+
+<p>Total: <strong>${{ order.total }}</strong></p>
+
+<br>
+
+<p>Gracias por comprar en RefSur 🏡</p>

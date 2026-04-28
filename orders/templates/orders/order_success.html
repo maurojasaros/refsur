@@ -1,0 +1,32 @@
+{% extends 'products/base.html' %}
+
+{% block content %}
+
+<div class="card p-5 text-center shadow-sm">
+
+    <h2 class="text-success">✅ Compra realizada con éxito</h2>
+
+    <p class="mt-3">
+        Tu pedido <strong>#{{ order.id }}</strong> ha sido registrado correctamente.
+    </p>
+
+    <p>Total pagado: <strong>${{ order.total }}</strong></p>
+
+    <hr>
+
+    <p>
+        Puedes revisar el estado de tu pedido en la sección
+        <strong>Mis pedidos</strong>.
+    </p>
+
+    <a href="{% url 'my_orders' %}" class="btn btn-primary mt-3">
+        Ver mis pedidos 📦
+    </a>
+
+    <a href="{% url 'product_list' %}" class="btn btn-secondary mt-2">
+        Volver al catálogo
+    </a>
+
+</div>
+
+{% endblock %}
