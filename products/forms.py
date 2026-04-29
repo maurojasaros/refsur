@@ -39,7 +39,7 @@ class RegisterForm(UserCreationForm):
             'placeholder': 'Confirmar contraseña'
         })
 
-    # 🔥 VALIDACIÓN EMAIL ÚNICO
+    # VALIDACIÓN EMAIL ÚNICO
     def clean_email(self):
         email = self.cleaned_data.get('email')
 
@@ -65,3 +65,12 @@ class UserUpdateForm(forms.ModelForm):
             field.widget.attrs.update({
                 'class': 'form-control'
             })
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+
+        # Excluir el usuario actual
+        if User.objects.filter(email=email).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Este correo ya está registrado")
+
+        return email

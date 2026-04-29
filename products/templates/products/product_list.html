@@ -2,50 +2,67 @@
 
 {% block content %}
 
-<h1 class="mb-4">Catálogo</h1>
+<h2 class="mb-4">Catálogo de productos</h2>
 
-<div class="row">
+<div class="row g-4">
 {% for producto in productos %}
 
     <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
+        <div class="card h-100 shadow-sm border-0">
 
-            <div class="card-body">
+            <div class="card-body d-flex flex-column">
+
                 <h5 class="card-title">
                     <a href="{% url 'product_detail' producto.id %}">
                         {{ producto.nombre }}
                     </a>
                 </h5>
 
-                <p>{{ producto.descripcion }}</p>
-                <p><strong>$ {{ producto.precio }}</strong></p>
+                <p class="text-muted small">
+                    {{ producto.descripcion }}
+                </p>
+
+                <p class="fw-bold fs-5">$ {{ producto.precio }}</p>
 
                 {% if producto.tipo == "mueble" %}
-                    <p>Stock: {{ producto.stock }}</p>
+                    <p class="small">Stock: {{ producto.stock }}</p>
 
-                    {% if producto.stock > 0 %}
-                        <!-- 🔥 CAMBIO AQUÍ -->
-                        <form method="POST" action="{% url 'cart:add_to_cart' producto.id %}">
-                            {% csrf_token %}
+                    <div class="mt-auto">
 
-                            <input 
-                                type="number" 
-                                name="cantidad" 
-                                value="1" 
-                                min="1" 
-                                max="{{ producto.stock }}"
-                                class="form-control mb-2"
-                            >
+                        {% if producto.stock > 0 %}
 
-                            <button class="btn btn-primary w-100">
-                                Agregar 🛒
+                            {% if user.is_authenticated %}
+                                <form method="POST" action="{% url 'cart:add_to_cart' producto.id %}">
+                                    {% csrf_token %}
+
+                                    <input 
+                                        type="number" 
+                                        name="cantidad" 
+                                        value="1" 
+                                        min="1" 
+                                        max="{{ producto.stock }}"
+                                        class="form-control mb-2"
+                                    >
+
+                                    <button class="btn btn-primary w-100">
+                                        Agregar 🛒
+                                    </button>
+                                </form>
+
+                            {% else %}
+                                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-warning w-100">
+                                    Inicia sesión 🔐
+                                </a>
+                            {% endif %}
+
+                        {% else %}
+                            <button class="btn btn-secondary w-100" disabled>
+                                Sin stock ❌
                             </button>
-                        </form>
-                    {% else %}
-                        <button class="btn btn-secondary w-100" disabled>
-                            Sin stock ❌
-                        </button>
-                    {% endif %}
+                        {% endif %}
+
+                    </div>
+
                 {% endif %}
             </div>
 

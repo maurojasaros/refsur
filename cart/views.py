@@ -1,16 +1,19 @@
+from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.views.decorators.http import require_POST
+
 from .models import Cart, CartItem
 from products.models import Product
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, redirect, render
-from django.db.models import F
-from django.contrib import messages
 
+
+#Agregar Carrito
 @login_required
 def add_to_cart(request, pk):
 
     producto = get_object_or_404(Product, pk=pk)
 
-    # 🔢 Obtener cantidad desde el form (default = 1)
+    # Obtener cantidad (default = 1)
     try:
         cantidad = int(request.POST.get('cantidad', 1))
     except ValueError:
@@ -19,18 +22,18 @@ def add_to_cart(request, pk):
     if cantidad < 1:
         cantidad = 1
 
-    # 🚫 Validar stock general
+    # Validar stock general
     if producto.stock is not None and producto.stock <= 0:
         messages.error(request, "Sin stock disponible")
         return redirect('product_list')
 
-    # 🛒 Obtener o crear carrito
+    # Obtener o crear carrito
     cart, created = Cart.objects.get_or_create(
         usuario=request.user,
         estado='activo'
     )
 
-    # 🔎 Buscar si ya existe en carrito
+    # Buscar si ya existe en carrito
     cart_item = CartItem.objects.filter(
         carrito=cart,
         producto=producto
@@ -47,7 +50,7 @@ def add_to_cart(request, pk):
         cart_item.cantidad = nueva_cantidad
         cart_item.save()
 
-    # 🆕 SI NO EXISTE
+    # SI NO EXISTE
     else:
         if producto.stock is not None and cantidad > producto.stock:
             messages.error(request, "Stock insuficiente")

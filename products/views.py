@@ -15,26 +15,6 @@ def product_detail(request, pk):
     producto = get_object_or_404(Product, pk=pk)
     return render(request, 'products/product_detail.html', {'producto': producto})
 
-#@login_required
-#def add_to_cart(request, pk):
-    producto = get_object_or_404(Product, pk=pk)
-
-    cart, created = Cart.objects.get_or_create(
-        usuario=request.user,
-        estado='activo'
-    )
-
-    cart_item, created = CartItem.objects.get_or_create(
-        carrito=cart,
-        producto=producto,
-        defaults={'cantidad': 1}
-    )
-
-    if not created:
-        cart_item.cantidad += 1
-        cart_item.save()
-
-    return redirect('product_list')
 
 @login_required
 def view_cart(request):

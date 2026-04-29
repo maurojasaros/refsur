@@ -1,28 +1,47 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Mis pedidos</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-<h1>Mis pedidos 📦</h1>
+{% block content %}
 
-<a href="{% url 'product_list' %}">Volver al catálogo</a>
+<h2 class="mb-4">Mis pedidos 📦</h2>
 
-<hr>
+{% if orders %}
+
+<div class="row g-3">
 
 {% for order in orders %}
-    <div style="border:1px solid #ccc; margin:10px; padding:10px;">
-        <h3>Pedido #{{ order.id }}</h3>
-        <p>Fecha: {{ order.fecha }}</p>
-        <p>Total: ${{ order.total }}</p>
-        <p>Estado: {{ order.estado }}</p>
+    <div class="col-md-6">
+        <div class="card shadow-sm p-3">
 
-        <a href="{% url 'order_detail' order.id %}">Ver detalle</a>
+            <h5>Pedido #{{ order.id }}</h5>
+
+            <p class="mb-1"><strong>Fecha:</strong> {{ order.fecha|date:"d/m/Y H:i" }}</p>
+            <p class="mb-1"><strong>Total:</strong> ${{ order.total }}</p>
+            <p class="mb-2">
+                <strong>Estado:</strong> 
+                <span class="badge 
+                    {% if order.estado == 'pagado' %}bg-success
+                    {% elif order.estado == 'cancelado' %}bg-danger
+                    {% else %}bg-secondary
+                    {% endif %}
+                ">
+                    {{ order.estado|capfirst }}
+                </span>
+            </p>
+
+            <a href="{% url 'order_detail' order.id %}" class="btn btn-outline-primary btn-sm">
+                Ver detalle
+            </a>
+
+        </div>
     </div>
-{% empty %}
-    <p>No tienes pedidos aún</p>
 {% endfor %}
 
-</body>
-</html>
+</div>
+
+{% else %}
+    <div class="alert alert-info">
+        No tienes pedidos aún 📭
+    </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card shadow-sm p-4 text-center">
+    <h2 class="text-danger">❌ Pago rechazado</h2>
+
+    <p>Tu pedido #{{ order.id }} no pudo ser procesado.</p>
+
+    <p>Puedes intentar nuevamente o revisar tus pedidos.</p>
+
+    <div class="mt-4">
+        <a href="{% url 'my_orders' %}" class="btn btn-outline-primary">
+            Ver mis pedidos
+        </a>
+
+        <a href="{% url 'product_list' %}" class="btn btn-primary">
+            Volver al catálogo
+        </a>
+    </div>
+</div>
+
+{% endblock %}

@@ -2,9 +2,9 @@
 
 {% block content %}
 
-<h2 class="mb-4">Registro</h2>
+<h2 class="mb-4 text-center">Crear cuenta</h2>
 
-<form method="POST" class="card p-4 shadow-sm">
+<form method="POST" class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
     {% csrf_token %}
 
     <!-- ERRORES GENERALES -->
@@ -59,7 +59,7 @@
         {% endfor %}
     </div>
 
-    <!-- CONFIRM PASSWORD -->
+    <!-- CONFIRMar PASSWORD -->
     <div class="mb-3">
         <label class="form-label">Confirmar contraseña</label>
         {{ form.password2 }}

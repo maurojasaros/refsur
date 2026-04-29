@@ -2,14 +2,27 @@
 
 {% block content %}
 
-<h1>{{ producto.nombre }}</h1>
+<div class="card shadow-sm p-4">
 
-<p>{{ producto.descripcion }}</p>
-<p><strong>$ {{ producto.precio }}</strong></p>
+    <h2 class="mb-3">{{ producto.nombre }}</h2>
 
-<form method="POST" action="{% url 'add_to_cart' producto.id %}">
-    {% csrf_token %}
-    <button class="btn btn-primary">Agregar al carrito</button>
-</form>
+    <p class="text-muted">{{ producto.descripcion }}</p>
+
+    <h4 class="mb-3">$ {{ producto.precio }}</h4>
+
+    {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'cart:add_to_cart' producto.id %}">
+            {% csrf_token %}
+            <button class="btn btn-primary">
+                Agregar al carrito 🛒
+            </button>
+        </form>
+    {% else %}
+        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-warning">
+            Inicia sesión para comprar 🔐
+        </a>
+    {% endif %}
+
+</div>
 
 {% endblock %}

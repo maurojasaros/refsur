@@ -6,16 +6,16 @@ from products.models import Product
 from django.db.models import F
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-
+from transbank.webpay.webpay_plus.transaction import Transaction
+from transbank.common.integration_type import IntegrationType
+from transbank.common.options import WebpayOptions
+from django.contrib import messages
 
 @login_required
 def checkout(request):
-    print("ENTRE AL CHECKOUT")
-
     if request.method != 'POST':
         return redirect('view_cart')
 
-    # 🛒 Obtener carrito
     cart = Cart.objects.filter(usuario=request.user, estado='activo').first()
 
     if not cart:
@@ -26,59 +26,49 @@ def checkout(request):
     if not items.exists():
         return redirect('view_cart')
 
-    # 🔍 Validar stock
+    # Validar stock
     for item in items:
-        producto = Product.objects.get(pk=item.producto.pk)
-
+        producto = item.producto
         if producto.stock is not None and producto.stock < item.cantidad:
             return redirect('view_cart')
 
-    # 🧾 Crear pedido
+    # Crear pedido
     order = Order.objects.create(
         usuario=request.user,
         total=cart.total,
         estado='pendiente'
     )
 
-    # 📦 Crear items + descontar stock
+    # Crear items
     for item in items:
-        producto = Product.objects.get(pk=item.producto.pk)
-
         OrderItem.objects.create(
             pedido=order,
-            producto=producto,
+            producto=item.producto,
             cantidad=item.cantidad,
-            precio_unitario=producto.precio
+            precio_unitario=item.producto.precio
         )
 
-        if producto.stock is not None:
-            Product.objects.filter(pk=producto.pk).update(
-                stock=F('stock') - item.cantidad
-            )
-
-    # 📧 EMAIL PRO (HTML)
-    subject = "Confirmación de compra"
-
-    html_content = render_to_string('emails/order_email.html', {
-        'user': request.user,
-        'order': order
-    })
-
-    email = EmailMultiAlternatives(
-        subject=subject,
-        body="",  # texto plano opcional
-        from_email='noreply@refsur.cl',
-        to=[request.user.email],
+    # TRANSBANK
+    tx = Transaction(
+        WebpayOptions(
+            commerce_code="597055555532", #Lo consegui de la pagina de transbank developers
+            api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C", #Lo consegui de la pagina de transbank developers
+            integration_type=IntegrationType.TEST
+        )
     )
 
-    email.attach_alternative(html_content, "text/html")
-    email.send(fail_silently=True)
+    response = tx.create(
+        buy_order=str(order.id),
+        session_id=str(request.user.id),
+        amount=order.total,
+        return_url="http://127.0.0.1:8000/commit/"
+    )
 
-    # 🔒 Cerrar carrito
-    cart.estado = 'comprado'
-    cart.save()
+    # guardar pedido
+    request.session['order_id'] = order.id
 
-    return redirect('order_success', pk=order.id)
+    # redirigir a Webpay
+    return redirect(response['url'] + "?token_ws=" + response['token'])
 
 
 @login_required
@@ -101,4 +91,77 @@ def order_detail(request, pk):
 @login_required
 def order_success(request, pk):
     order = get_object_or_404(Order, pk=pk, usuario=request.user)
-    return render(request, 'orders/order_success.html', {'order': order})
+    items = OrderItem.objects.filter(pedido=order)
+
+    return render(request, 'orders/order_success.html', {
+        'order': order,
+        'items': items
+    })
+
+    
+
+@login_required
+def commit(request):
+    token = request.GET.get("token_ws")
+
+    if not token:
+        messages.error(request, "❌ Error en la transacción (token inválido).")
+        return redirect('my_orders')
+
+    tx = Transaction(
+        WebpayOptions(
+            commerce_code="597055555532", #Lo consegui de la pagina de transbank developers
+            api_key="579B532A7440BB0C9079DED94D31EA1615BACEB56610332264630D42D0A36B1C", #Lo consegui de la pagina de transbank developers
+            integration_type=IntegrationType.TEST
+        )
+    )
+
+    response = tx.commit(token)
+
+    order_id = request.session.get('order_id')
+    order = get_object_or_404(Order, pk=order_id, usuario=request.user)
+
+    # EVITAR DOBLE PROCESAMIENTO
+    if order.estado == 'pagado':
+        return redirect('order_success', pk=order.id)
+
+    # VALIDACIÓN COMPLETA
+    if (
+        response.get('status') == 'AUTHORIZED' and
+        str(response.get('buy_order')) == str(order.id) and
+        int(response.get('amount')) == int(order.total)
+    ):
+        order.estado = 'pagado'
+
+        items = OrderItem.objects.filter(pedido=order)
+
+        for item in items:
+            if item.producto.stock is not None:
+                Product.objects.filter(pk=item.producto.pk).update(
+                    stock=F('stock') - item.cantidad
+                )
+
+        cart = Cart.objects.filter(usuario=request.user, estado='activo').first()
+        if cart:
+            cart.estado = 'comprado'
+            cart.save()
+
+        order.save()
+
+        messages.success(request, "✅ Pago realizado con éxito")
+
+        return redirect('order_success', pk=order.id)
+
+    else:
+        order.estado = 'cancelado'
+        order.save()
+
+        messages.error(request, "❌ El pago fue rechazado o no coincide con la orden.")
+
+        return redirect('payment_failed', pk=order.id)
+    
+
+@login_required
+def payment_failed(request, pk):
+    order = get_object_or_404(Order, pk=pk, usuario=request.user)
+    return render(request, 'orders/payment_failed.html', {'order': order})
