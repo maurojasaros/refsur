@@ -61,7 +61,7 @@ def checkout(request):
         buy_order=str(order.id),
         session_id=str(request.user.id),
         amount=order.total,
-        return_url="http://127.0.0.1:8000/commit/"
+        return_url="https://refsur.onrender.com/commit/"
     )
 
     # guardar pedido
