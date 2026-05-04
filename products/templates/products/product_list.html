@@ -3,8 +3,6 @@
 
 {% block content %}
 
-{% static "img/default.jpg" as default_img %}
-
 <h2 class="mb-4">Catálogo de productos</h2>
 
 <div class="row g-4">
@@ -13,13 +11,15 @@
     <div class="col-md-4">
         <div class="card h-100 shadow-sm border-0">
 
-            <!-- 🔥 IMAGEN SEGURA -->
-            {% if producto.imagen %}
-                <img src="{{ producto.imagen.url }}" 
-                     class="card-img-top product-img"
-                     onerror="this.onerror=null; this.src='{{ default_img }}';">
+            <!-- 🔥 IMAGEN POR TIPO (SIEMPRE FUNCIONA) -->
+            {% if producto.tipo == "mueble" %}
+                <img src="{% static 'img/mueble.jpg' %}" 
+                     class="card-img-top product-img">
+            {% elif producto.tipo == "casa" %}
+                <img src="{% static 'img/casa.jpg' %}" 
+                     class="card-img-top product-img">
             {% else %}
-                <img src="{{ default_img }}" 
+                <img src="{% static 'img/default.jpg' %}" 
                      class="card-img-top product-img">
             {% endif %}
 

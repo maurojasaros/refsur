@@ -3,17 +3,17 @@
 
 {% block content %}
 
-{% static "img/default.jpg" as default_img %}
-
 <div class="card shadow-sm p-4">
 
-    <!-- 🔥 IMAGEN SEGURA -->
-    {% if producto.imagen %}
-        <img src="{{ producto.imagen.url }}" 
-             class="product-detail-img mb-3"
-             onerror="this.onerror=null; this.src='{{ default_img }}';">
+    <!-- 🔥 IMAGEN POR TIPO (SIEMPRE FUNCIONA) -->
+    {% if producto.tipo == "mueble" %}
+        <img src="{% static 'img/mueble.jpg' %}" 
+             class="product-detail-img mb-3">
+    {% elif producto.tipo == "casa" %}
+        <img src="{% static 'img/casa.jpg' %}" 
+             class="product-detail-img mb-3">
     {% else %}
-        <img src="{{ default_img }}" 
+        <img src="{% static 'img/default.jpg' %}" 
              class="product-detail-img mb-3">
     {% endif %}
 
@@ -49,12 +49,10 @@
             <p class="small">📐 {{ producto.m2 }} m²</p>
         {% endif %}
 
-        <!-- 🔥 PLANO DINÁMICO -->
-        {% if producto.planos %}
-            <a href="{{ producto.planos.url }}" target="_blank" class="btn btn-outline-primary mt-2">
-                Ver plano 📄
-            </a>
-        {% endif %}
+        <!-- 🔥 PLANO (STATIC, SEGURO) -->
+        <a href="{% static 'planos/casa1.pdf' %}" target="_blank" class="btn btn-outline-primary mt-2">
+            Ver plano 📄
+        </a>
 
         <!-- 🔥 ACCIÓN -->
         {% if user.is_authenticated %}
