@@ -1,12 +1,19 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
+{% static "img/default.jpg" as default_img %}
+
 <div class="card shadow-sm p-4">
 
-    <!-- 🔥 IMAGEN -->
+    <!-- 🔥 IMAGEN SEGURA -->
     {% if producto.imagen %}
         <img src="{{ producto.imagen.url }}" 
+             class="product-detail-img mb-3"
+             onerror="this.onerror=null; this.src='{{ default_img }}';">
+    {% else %}
+        <img src="{{ default_img }}" 
              class="product-detail-img mb-3">
     {% endif %}
 

@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
+
+{% static "img/default.jpg" as default_img %}
 
 <h2 class="mb-4">Catálogo de productos</h2>
 
@@ -10,13 +13,17 @@
     <div class="col-md-4">
         <div class="card h-100 shadow-sm border-0">
 
-            <!-- 🔥 IMAGEN -->
+            <!-- 🔥 IMAGEN SEGURA -->
             {% if producto.imagen %}
                 <img src="{{ producto.imagen.url }}" 
+                     class="card-img-top product-img"
+                     onerror="this.onerror=null; this.src='{{ default_img }}';">
+            {% else %}
+                <img src="{{ default_img }}" 
                      class="card-img-top product-img">
             {% endif %}
 
-            <div class="card-body">
+            <div class="card-body d-flex flex-column">
 
                 <h5 class="card-title">
                     <a href="{% url 'product_detail' producto.id %}">
@@ -72,8 +79,13 @@
 
                 {% elif producto.tipo == "casa" %}
 
-                    <p class="small">📍 {{ producto.ubicacion }}</p>
-                    <p class="small">📐 {{ producto.m2 }} m²</p>
+                    {% if producto.ubicacion %}
+                        <p class="small">📍 {{ producto.ubicacion }}</p>
+                    {% endif %}
+
+                    {% if producto.m2 %}
+                        <p class="small">📐 {{ producto.m2 }} m²</p>
+                    {% endif %}
 
                     <div class="mt-auto">
                         <a href="{% url 'product_detail' producto.id %}" class="btn btn-success w-100">
