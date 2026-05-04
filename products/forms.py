@@ -18,6 +18,12 @@ class RegisterForm(UserCreationForm):
             'class': 'form-control',
             'placeholder': 'Nombre de usuario'
         })
+
+        # 🔥 ESTA ES LA CLAVE
+        self.fields['username'].error_messages = {
+            'unique': 'Este nombre de usuario ya está en uso'
+        }
+
         self.fields['email'].widget.attrs.update({
             'class': 'form-control',
             'placeholder': 'Correo electrónico'
