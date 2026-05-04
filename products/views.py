@@ -81,6 +81,9 @@ def profile(request):
             form.save()
             messages.success(request, "Perfil actualizado correctamente")
             return redirect('profile')
+        else:
+            messages.error(request, "❌ Corrige los errores del formulario")
+
     else:
         form = UserUpdateForm(instance=request.user)
 
