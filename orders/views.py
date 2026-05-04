@@ -26,11 +26,13 @@ def checkout(request):
     if not items.exists():
         return redirect('view_cart')
 
-    # Validar stock
+    # Validar stock SOLO para muebles
     for item in items:
         producto = item.producto
-        if producto.stock is not None and producto.stock < item.cantidad:
-            return redirect('view_cart')
+
+        if producto.tipo == 'mueble':
+            if producto.stock is not None and producto.stock < item.cantidad:
+                return redirect('view_cart')
 
     # Crear pedido
     order = Order.objects.create(
