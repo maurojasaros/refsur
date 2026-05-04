@@ -13,19 +13,23 @@ def add_to_cart(request, pk):
 
     producto = get_object_or_404(Product, pk=pk)
 
-    # Obtener cantidad (default = 1)
-    try:
-        cantidad = int(request.POST.get('cantidad', 1))
-    except ValueError:
+    # 🔥 SI ES CASA → cantidad fija
+    if producto.tipo == 'casa':
         cantidad = 1
+    else:
+        try:
+            cantidad = int(request.POST.get('cantidad', 1))
+        except ValueError:
+            cantidad = 1
 
-    if cantidad < 1:
-        cantidad = 1
+        if cantidad < 1:
+            cantidad = 1
 
-    # Validar stock general
-    if producto.stock is not None and producto.stock <= 0:
-        messages.error(request, "Sin stock disponible")
-        return redirect('product_list')
+    # 🔥 VALIDAR STOCK SOLO SI ES MUEBLE
+    if producto.tipo == 'mueble':
+        if producto.stock is not None and producto.stock <= 0:
+            messages.error(request, "Sin stock disponible")
+            return redirect('product_list')
 
     # Obtener o crear carrito
     cart, created = Cart.objects.get_or_create(
@@ -33,7 +37,6 @@ def add_to_cart(request, pk):
         estado='activo'
     )
 
-    # Buscar si ya existe en carrito
     cart_item = CartItem.objects.filter(
         carrito=cart,
         producto=producto
@@ -41,6 +44,12 @@ def add_to_cart(request, pk):
 
     # 📦 SI YA EXISTE
     if cart_item:
+
+        # 🔥 SI ES CASA → no duplicar
+        if producto.tipo == 'casa':
+            messages.info(request, "Este proyecto ya está en el carrito")
+            return redirect('product_list')
+
         nueva_cantidad = cart_item.cantidad + cantidad
 
         if producto.stock is not None and nueva_cantidad > producto.stock:
@@ -52,9 +61,10 @@ def add_to_cart(request, pk):
 
     # SI NO EXISTE
     else:
-        if producto.stock is not None and cantidad > producto.stock:
-            messages.error(request, "Stock insuficiente")
-            return redirect('product_list')
+        if producto.tipo == 'mueble':
+            if producto.stock is not None and cantidad > producto.stock:
+                messages.error(request, "Stock insuficiente")
+                return redirect('product_list')
 
         CartItem.objects.create(
             carrito=cart,

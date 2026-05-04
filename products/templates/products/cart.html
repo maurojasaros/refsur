@@ -22,23 +22,40 @@
     <tbody>
     {% for item in items %}
         <tr>
-            <td>{{ item.producto.nombre }}</td>
 
+            <!-- 🔥 NOMBRE DIFERENCIADO -->
+            <td>
+                {% if item.producto.tipo == "casa" %}
+                    🏡 Proyecto: {{ item.producto.nombre }}
+                {% else %}
+                    🛒 {{ item.producto.nombre }}
+                {% endif %}
+            </td>
+
+            <!-- 🔥 CANTIDAD -->
             <td class="text-center">
 
-                <form method="POST" action="{% url 'cart:update_quantity' item.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="decrease">
-                    <button class="btn btn-sm btn-outline-secondary">-</button>
-                </form>
+                {% if item.producto.tipo == "mueble" %}
+                    <!-- SOLO MUEBLES PUEDEN CAMBIAR CANTIDAD -->
 
-                <span class="mx-2">{{ item.cantidad }}</span>
+                    <form method="POST" action="{% url 'cart:update_quantity' item.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="decrease">
+                        <button class="btn btn-sm btn-outline-secondary">-</button>
+                    </form>
 
-                <form method="POST" action="{% url 'cart:update_quantity' item.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <input type="hidden" name="action" value="increase">
-                    <button class="btn btn-sm btn-outline-secondary">+</button>
-                </form>
+                    <span class="mx-2">{{ item.cantidad }}</span>
+
+                    <form method="POST" action="{% url 'cart:update_quantity' item.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="increase">
+                        <button class="btn btn-sm btn-outline-secondary">+</button>
+                    </form>
+
+                {% else %}
+                    <!-- 🔥 CASAS -->
+                    <span class="badge bg-secondary">1 (proyecto)</span>
+                {% endif %}
 
             </td>
 
@@ -51,6 +68,7 @@
                     <button class="btn btn-danger btn-sm">❌</button>
                 </form>
             </td>
+
         </tr>
     {% endfor %}
     </tbody>
