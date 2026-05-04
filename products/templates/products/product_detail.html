@@ -1,7 +1,5 @@
 {% extends 'base.html' %}
 
-{% load static %}
-
 {% block content %}
 
 <div class="card shadow-sm p-4">
@@ -44,10 +42,12 @@
             <p class="small">📐 {{ producto.m2 }} m²</p>
         {% endif %}
 
-        <!-- 🔥 PDF (STATIC) -->
-        <a href="{% static 'planos/casa1.pdf' %}" target="_blank" class="btn btn-outline-primary mt-2">
-            Ver plano 📄
-        </a>
+        <!-- 🔥 PLANO DINÁMICO -->
+        {% if producto.planos %}
+            <a href="{{ producto.planos.url }}" target="_blank" class="btn btn-outline-primary mt-2">
+                Ver plano 📄
+            </a>
+        {% endif %}
 
         <!-- 🔥 ACCIÓN -->
         {% if user.is_authenticated %}
