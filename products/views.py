@@ -34,8 +34,17 @@ def register(request):
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')
+            user = form.save()
+
+            # 🔥 INICIAR SESIÓN AUTOMÁTICAMENTE
+            login(request, user)
+
+            # 🔥 MENSAJE DE ÉXITO
+            messages.success(request, "✅ Cuenta creada exitosamente")
+
+            # 🔥 REDIRECCIÓN AL HOME
+            return redirect('product_list')
+
     else:
         form = RegisterForm()
 
