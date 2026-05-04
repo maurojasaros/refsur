@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
 
 <div class="card shadow-sm p-4">
@@ -7,8 +9,7 @@
     <!-- 🔥 IMAGEN -->
     {% if producto.imagen %}
         <img src="{{ producto.imagen.url }}" 
-             class="img-fluid mb-3 rounded"
-             style="max-height: 400px; object-fit: cover;">
+             class="product-detail-img mb-3">
     {% endif %}
 
     <h2 class="mb-3">{{ producto.nombre }}</h2>
@@ -17,17 +18,48 @@
 
     <h4 class="mb-3">$ {{ producto.precio }}</h4>
 
-    {% if user.is_authenticated %}
-        <form method="POST" action="{% url 'cart:add_to_cart' producto.id %}">
-            {% csrf_token %}
-            <button class="btn btn-primary">
-                Agregar al carrito 🛒
-            </button>
-        </form>
-    {% else %}
-        <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-warning">
-            Inicia sesión para comprar 🔐
+    {% if producto.tipo == "mueble" %}
+
+        {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'cart:add_to_cart' producto.id %}">
+                {% csrf_token %}
+                <button class="btn btn-primary">
+                    Agregar al carrito 🛒
+                </button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-warning">
+                Inicia sesión para comprar 🔐
+            </a>
+        {% endif %}
+
+    {% elif producto.tipo == "casa" %}
+
+        <!-- 🔥 INFO EXTRA -->
+        {% if producto.ubicacion %}
+            <p class="small">📍 {{ producto.ubicacion }}</p>
+        {% endif %}
+
+        {% if producto.m2 %}
+            <p class="small">📐 {{ producto.m2 }} m²</p>
+        {% endif %}
+
+        <!-- 🔥 PDF (STATIC) -->
+        <a href="{% static 'planos/casa1.pdf' %}" target="_blank" class="btn btn-outline-primary mt-2">
+            Ver plano 📄
         </a>
+
+        <!-- 🔥 ACCIÓN -->
+        {% if user.is_authenticated %}
+            <a href="#" class="btn btn-success mt-2">
+                Solicitar proyecto 🏡
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-warning mt-2">
+                Inicia sesión para continuar 🔐
+            </a>
+        {% endif %}
+
     {% endif %}
 
 </div>
