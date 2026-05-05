@@ -23,7 +23,7 @@
     {% for item in items %}
         <tr>
 
-            <!-- 🔥 NOMBRE DIFERENCIADO -->
+            
             <td>
                 {% if item.producto.tipo == "casa" %}
                     🏡 Proyecto: {{ item.producto.nombre }}
@@ -32,7 +32,7 @@
                 {% endif %}
             </td>
 
-            <!-- 🔥 CANTIDAD -->
+            
             <td class="text-center">
 
                 {% if item.producto.tipo == "mueble" %}
@@ -53,7 +53,7 @@
                     </form>
 
                 {% else %}
-                    <!-- 🔥 CASAS -->
+                    
                     <span class="badge bg-secondary">1 (proyecto)</span>
                 {% endif %}
 

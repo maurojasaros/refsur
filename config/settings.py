@@ -100,7 +100,7 @@ if os.environ.get('DATABASE_URL'):
         )
     }
 else:
-    # 🔥 LOCAL (SQLite)
+    
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

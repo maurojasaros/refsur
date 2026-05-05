@@ -36,13 +36,13 @@ def register(request):
         if form.is_valid():
             user = form.save()
 
-            # 🔥 INICIAR SESIÓN AUTOMÁTICAMENTE
+            # INICIAR SESIÓN AUTOMÁTICAMENTE
             login(request, user)
 
-            # 🔥 MENSAJE DE ÉXITO
+            # MENSAJE DE ÉXITO
             messages.success(request, "✅ Cuenta creada exitosamente")
 
-            # 🔥 REDIRECCIÓN AL HOME
+            # REDIRECCIÓN AL HOME
             return redirect('product_list')
 
     else:

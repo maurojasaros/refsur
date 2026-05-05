@@ -13,7 +13,7 @@ def add_to_cart(request, pk):
 
     producto = get_object_or_404(Product, pk=pk)
 
-    # 🔥 SI ES CASA → cantidad fija
+   
     if producto.tipo == 'casa':
         cantidad = 1
     else:
@@ -25,7 +25,7 @@ def add_to_cart(request, pk):
         if cantidad < 1:
             cantidad = 1
 
-    # 🔥 VALIDAR STOCK SOLO SI ES MUEBLE
+    
     if producto.tipo == 'mueble':
         if producto.stock is not None and producto.stock <= 0:
             messages.error(request, "Sin stock disponible")
@@ -45,7 +45,7 @@ def add_to_cart(request, pk):
     # 📦 SI YA EXISTE
     if cart_item:
 
-        # 🔥 SI ES CASA → no duplicar
+        
         if producto.tipo == 'casa':
             messages.info(request, "Este proyecto ya está en el carrito")
             return redirect('product_list')
