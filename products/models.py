@@ -24,11 +24,11 @@ class Product(models.Model):
 
     categoria = models.ForeignKey(Category, on_delete=models.CASCADE)
 
-    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
+    imagen = models.URLField(blank=True, null=True)
 
     # CASA
     m2 = models.IntegerField(null=True, blank=True)
-    planos = models.FileField(upload_to='planos/', null=True, blank=True)
+    planos = models.URLField(blank=True, null=True)
     ubicacion = models.CharField(max_length=100, null=True, blank=True)
 
     # MUEBLE
