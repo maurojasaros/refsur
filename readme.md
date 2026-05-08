@@ -98,9 +98,9 @@ https://www.transbankdevelopers.cl/documentacion/como_empezar#tarjetas-de-prueba
 
 ### 🖼️ Manejo de imágenes
 
-* Se utilizan imágenes estáticas
-* No se cargan dinámicamente desde el panel de administración
-* Esto se debe a limitaciones del hosting en Render (no persistencia de archivos)
+* Integración con Supabase Storage
+* Gestión de imágenes mediante URLs públicas
+* Solución compatible con entorno cloud
 
 ---
 
@@ -139,6 +139,7 @@ https://www.transbankdevelopers.cl/documentacion/como_empezar#tarjetas-de-prueba
 * Base de datos: PostgreSQL (producción)
 * Deploy: Render
 * API de pago: Transbank (modo TEST)
+* Supabase
 
 ---
 
